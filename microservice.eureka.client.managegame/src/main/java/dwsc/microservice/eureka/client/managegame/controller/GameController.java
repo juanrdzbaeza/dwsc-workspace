@@ -25,7 +25,10 @@ public class GameController {
 	}
 	 
 	@RequestMapping(value = "/game/", method = RequestMethod.POST)
-	public @ResponseBody Boolean setGame(@RequestParam("name") String n, @RequestParam("description") String d, @RequestParam("cover_url") String c) { 
+	public @ResponseBody Boolean setGame(
+			@RequestParam("name") String n, 
+			@RequestParam("description") String d, 
+			@RequestParam("cover_url") String c) { 
 		return gameService.createGameInDB(n, d, c);
 	}
 	
