@@ -69,7 +69,7 @@ public class PlayerController {
 		Map<String, String> params = new TreeMap<String, String>();
 		params.put("data", dni);
 		List<ServiceInstance> serviceList = discoveryClient.getInstances(
-				"SAMPLE-CLIENT-DATA_VALIDATOR");
+				"client-data_validator");
 		if(serviceList != null && serviceList.size() > 0) {
 			URI uri = serviceList.get(0).getUri();
 			String url = uri.toString() + "/{data}";

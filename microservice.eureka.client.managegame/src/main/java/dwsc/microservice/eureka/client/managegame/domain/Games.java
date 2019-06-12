@@ -4,13 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Entity
-public class Game {
+public class Games {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,19 +16,7 @@ public class Game {
 	private String name;
 	private String description;
 	private String cover_url;
-	
-	
-	
-	public Game() {}
-	
-	public Game(String n, String d, String c) {
-		this.name			= n;
-		this.description	= d;
-		this.cover_url		= c;
-	}
 
-	
-	/* geter and seter */
 	public Integer getGame_id() {
 		return game_id;
 	}
@@ -62,7 +48,5 @@ public class Game {
 	public void setCover_url(String cover_url) {
 		this.cover_url = cover_url;
 	}
-	
-	
-	
+
 }
