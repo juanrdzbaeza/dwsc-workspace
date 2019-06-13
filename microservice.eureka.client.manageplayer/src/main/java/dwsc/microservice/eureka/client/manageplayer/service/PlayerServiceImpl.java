@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 
-import dwsc.microservice.eureka.client.manageplayer.domain.Player;
+import dwsc.microservice.eureka.client.manageplayer.domain.Players;
 
 @Service
 public class PlayerServiceImpl implements PlayerService{
@@ -29,8 +29,8 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public ArrayList<Player> getPlayersFromDB() {
-		ArrayList<Player> players = new ArrayList<Player>();
+	public ArrayList<Players> getPlayersFromDB() {
+		ArrayList<Players> players = new ArrayList<Players>();
 		
 		//Connect to db
 		Connection conn = this.connect2DB();
@@ -40,7 +40,7 @@ public class PlayerServiceImpl implements PlayerService{
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM players ORDER BY name");
 			while(rs.next()) {
-				Player player = new Player();
+				Players player = new Players();
 				
 				player.setDni(rs.getString("dni"));
 				player.setName(rs.getString("name"));
@@ -59,8 +59,8 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public Player getPlayerByDNIFromDB(String dni) {
-		Player player = null;
+	public Players getPlayerByDNIFromDB(String dni) {
+		Players player = null;
 		
 		//Connect to db
 		Connection conn = this.connect2DB();
@@ -71,7 +71,7 @@ public class PlayerServiceImpl implements PlayerService{
 			ResultSet rs = st.executeQuery("SELECT * FROM players WHERE "
 					+ "dni = '" + dni + "' ORDER BY name");
 			while(rs.next()) {
-				Player p = new Player();
+				Players p = new Players();
 				
 				p.setDni(rs.getString("dni"));
 				p.setName(rs.getString("name"));
@@ -90,8 +90,8 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public ArrayList<Player> getPlayerByNameFromDB(String name){
-		ArrayList<Player> players = new ArrayList<Player>();
+	public ArrayList<Players> getPlayerByNameFromDB(String name){
+		ArrayList<Players> players = new ArrayList<Players>();
 		
 		//Connect to db
 		Connection conn = this.connect2DB();
@@ -102,7 +102,7 @@ public class PlayerServiceImpl implements PlayerService{
 			ResultSet rs = st.executeQuery("SELECT * FROM players WHERE "
 					+ "name LIKE '%" + name + "%' ORDER BY name");
 			while(rs.next()) {
-				Player player = new Player();
+				Players player = new Players();
 				
 				player.setDni(rs.getString("dni"));
 				player.setName(rs.getString("name"));
@@ -121,8 +121,8 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public ArrayList<Player> getPlayerBySurnameFromDB(String surname){
-		ArrayList<Player> players = new ArrayList<Player>();
+	public ArrayList<Players> getPlayerBySurnameFromDB(String surname){
+		ArrayList<Players> players = new ArrayList<Players>();
 		
 		//Connect to db
 		Connection conn = this.connect2DB();
@@ -133,7 +133,7 @@ public class PlayerServiceImpl implements PlayerService{
 			ResultSet rs = st.executeQuery("SELECT * FROM players WHERE "
 					+ "surname LIKE '%" + surname + "%' ORDER BY name");
 			while(rs.next()) {
-				Player player = new Player();
+				Players player = new Players();
 				
 				player.setDni(rs.getString("dni"));
 				player.setName(rs.getString("name"));
@@ -152,9 +152,13 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public boolean createPlayerInDB(
-		String dni, String name, String surname, int age) {
-		boolean created = false;
+	public Players createPlayerInDB(String dni, String name, String surname, int age) {
+		Players player = new Players();
+		player.setDni(dni);
+		player.setName(name);
+		player.setSurname(surname);
+		player.setAge(age);
+		int result = 0;
 		
 		//Connect to db
 		Connection conn = this.connect2DB();
@@ -162,18 +166,20 @@ public class PlayerServiceImpl implements PlayerService{
 		//Creates the new player in the db
 		try {
 			Statement st = conn.createStatement();
-			int result = st.executeUpdate("INSERT INTO players (dni, name, surname, age)"
+			result = st.executeUpdate("INSERT INTO players (dni, name, surname, age)"
 					+ " VALUES ('" + dni + "', '" + name + "', '" + surname + "', " + age + ")");
-			if (result != 0) {
-				created = true;
-			}
 		} catch (SQLException e) {
 			System.err.println("[PlayerService - createPlayerInDB] SQLException while"
 					+ " creating the player in the database");
 			System.err.println(e.getMessage());
 		}
 		
-		return created;
+		if(result == 1) {
+			return player;
+		}
+		else {
+			return null;
+		}
 	}
 	
 	@Override
@@ -200,9 +206,13 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public boolean updatePlayerInDB(
-		String dni, String name, String surname, int age) {
-		boolean updated = false;
+	public Players updatePlayerInDB(String dni, String name, String surname, int age) {
+		Players player = new Players();
+		player.setDni(dni);
+		player.setName(name);
+		player.setSurname(surname);
+		player.setAge(age);
+		int result = 0;
 		
 		//Connect to db
 		Connection conn = this.connect2DB();
@@ -210,19 +220,21 @@ public class PlayerServiceImpl implements PlayerService{
 		//Updates the player specified from the db
 		try {
 			Statement st = conn.createStatement();
-			int result = st.executeUpdate("UPDATE players SET name = '" + name 
+			result = st.executeUpdate("UPDATE players SET name = '" + name 
 					+ "', surname = '" + surname + "', age = " + age 
 					+ " WHERE dni = '" + dni + "'");
-			if (result != 0) {
-				updated = true;
-			}
 		} catch (SQLException e) {
 			System.err.println("[PlayerService - updatePlayerInDB] SQLException while"
 					+ " updating the player in the database");
 			System.err.println(e.getMessage());
 		}
 		
-		return updated;
+		if(result == 1) {
+			return player;
+		}
+		else {
+			return null;
+		}
 	}
 	
 }
