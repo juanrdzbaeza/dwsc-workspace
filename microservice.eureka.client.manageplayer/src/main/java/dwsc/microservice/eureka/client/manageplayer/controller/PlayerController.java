@@ -77,7 +77,7 @@ public class PlayerController {
 				validator = (new RestTemplate()).getForObject(url, Boolean.class, params);
 			}
 		}
-		
+	
 		if(validator) {
 			boolean inserted = playerService.createPlayerInDB(dni, name, surname, age);
 			if(inserted){
