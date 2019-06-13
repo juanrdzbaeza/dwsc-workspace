@@ -1,10 +1,12 @@
+# player_games
 server:
-  port: 50003
-
+  port: 50002
+ 
 eureka:
   instance:
     hostname: localhost
-    instance-id: ${eureka.instance.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
+    instance_id: ${eureka.instance.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
   client:
     service-url:
       default-zone: http://localhost:8761/
+ 
