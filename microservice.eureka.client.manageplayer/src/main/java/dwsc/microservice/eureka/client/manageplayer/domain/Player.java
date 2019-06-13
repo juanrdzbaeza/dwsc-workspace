@@ -1,6 +1,5 @@
 package dwsc.microservice.eureka.client.manageplayer.domain;
 
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.persistence.*;
 
@@ -10,7 +9,6 @@ public class Player {
 	
 	@Id
 	private String dni;
-	
 	private String name;
 	private String surname;
 	private Integer age;

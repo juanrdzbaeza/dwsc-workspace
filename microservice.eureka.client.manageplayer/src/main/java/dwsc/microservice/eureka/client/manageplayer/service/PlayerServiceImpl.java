@@ -152,7 +152,8 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public boolean createPlayerInDB(String dni, String name, String surname, int age) {
+	public boolean createPlayerInDB(
+		String dni, String name, String surname, int age) {
 		boolean created = false;
 		
 		//Connect to db
@@ -199,7 +200,8 @@ public class PlayerServiceImpl implements PlayerService{
 	}
 	
 	@Override
-	public boolean updatePlayerInDB(String dni, String name, String surname, int age) {
+	public boolean updatePlayerInDB(
+		String dni, String name, String surname, int age) {
 		boolean updated = false;
 		
 		//Connect to db
