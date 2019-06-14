@@ -15,19 +15,14 @@ import dwsc.microservice.eureka.client.manageplayer.service.PlayerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-
-
 @RestController
 public class PlayerController {
 	@Autowired
 	private PlayerService playerService;
 	
-	/*@Autowired
-	private DiscoveryClient discoveryClient;*/
 	@Autowired
 	private DataValidatorClient dataValidatorClient;
 	
-	// Mapping the path in the microservice to get all players
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ResponseEntity<Object> getPlayers() {
 		ArrayList<Players> players = playerService.getPlayersFromDB();
@@ -39,7 +34,6 @@ public class PlayerController {
 		}
 	}
 	
-	// Mapping the path in the microservice to get a player by its DNI
 	@RequestMapping(value = "/dni/", method = RequestMethod.GET)
 	public ResponseEntity<Players> getPlayerByDNI(@RequestParam("dni") String dni) {
 		Players player = playerService.getPlayerByDNIFromDB(dni);
@@ -51,7 +45,6 @@ public class PlayerController {
 		}
 	}
 	
-	// Mapping the path in the microservice to get players by their name
 	@RequestMapping(value = "/name/", method = RequestMethod.GET)
 	public ResponseEntity<Object> getPlayerByName(@RequestParam("name") String name) {
 		ArrayList<Players> players = playerService.getPlayerByNameFromDB(name);
@@ -63,7 +56,6 @@ public class PlayerController {
 		}
 	}
 	
-	// Mapping the path in the microservice to get players by their surname
 	@RequestMapping(value = "/surname/", method = RequestMethod.GET)
 	public ResponseEntity<Object> getPlayerBySurname(
 			@RequestParam("surname") String surname) {
@@ -76,23 +68,12 @@ public class PlayerController {
 		}
 	}
 	
-	// Mapping the path in the microservice to create a player with the specified properties
 	@RequestMapping(value = "/player/", method = RequestMethod.POST)
-	public ResponseEntity<Players> createPlayer(@RequestParam("dni") String dni,
+	public ResponseEntity<Players> createPlayer(
+			@RequestParam("dni") String dni,
 			@RequestParam("name") String name,
 			@RequestParam("surname") String surname, 
-			@RequestParam("age") int age) {		
-		/*Map<String, String> params = new TreeMap<String, String>();
-		params.put("data", dni);
-		List<ServiceInstance> serviceList = discoveryClient.getInstances(
-				"SAMPLE-CLIENT-DATA_VALIDATOR");
-		if(serviceList != null && serviceList.size() > 0) {
-			URI uri = serviceList.get(0).getUri();
-			String url = uri.toString() + "/{data}";
-			if(uri != null) {
-				validator = (new RestTemplate()).getForObject(url, Boolean.class, params);
-			}
-		}*/
+			@RequestParam("age") int age) {
 		Players player = playerService.getPlayerByDNIFromDB(dni);
 		if(player == null) {
 			boolean validator = dataValidatorClient.validateData(dni).getBody();
@@ -115,7 +96,6 @@ public class PlayerController {
 		}
 	}
 	
-	// Mapping the path in the microservice to delete a player by its DNI
 	@RequestMapping(value = "/player/", method = RequestMethod.DELETE)
 	public ResponseEntity<Object> deletePlayerByDNI(@RequestParam("dni") String dni) {
 		boolean deleted = playerService.deletePlayerByDNIFromDB(dni);
@@ -127,8 +107,6 @@ public class PlayerController {
 		}
 	}
 	
-	// Mapping the path in the microservice to update a player by its DNI and using
-	// the values specified by parameters
 	@RequestMapping(value = "/player/", method = RequestMethod.PUT)
 	public ResponseEntity<Players> updatePlayer(@RequestParam("dni") String dni, 
 			@RequestParam("name") String name,

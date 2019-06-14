@@ -1,0 +1,50 @@
+<html>
+
+<head>
+	<title>Add New Game</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type="module" src="form-game.js"></script>
+</head>
+
+<body>
+	<form-game
+		title="Add a new game" 
+		button="Add game"
+		click_function="createGame()"
+	></form-game>
+	<script type="text/javascript">
+		function createGame(){
+			var form_game = document.body.firstElementChild.shadowRoot;
+			var name = form_game.firstElementChild.children[3].children[1].value;
+			var description = form_game.firstElementChild.children[5].children[1].value;
+			var cover_url = form_game.firstElementChild.children[7].children[1].value;
+			console.log(name);
+			console.log(description);
+			console.log(cover_url);
+			var request = $.ajax({
+				type: "POST",
+				data: {
+					"name": name,
+					"description": description,
+					"cover_url": cover_url
+				},
+				crossDomain: true,
+				url: "http://localhost:50003/games/add/",
+				statusCode: {
+					201: function(responseObject){
+						console.log(responseObject);
+					},
+					400: function(){
+						console.log("He obtenido un 400!");
+					},
+					409: function(){
+						console.log("He obtenido un 409!");
+					}
+				}
+			});
+			console.log(request);
+		}
+	</script>
+</body>
+
+</html>
