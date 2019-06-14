@@ -5,7 +5,7 @@ import javax.persistence.*;
 
 @XmlRootElement
 @Entity
-public class Player {
+public class Players {
 	
 	@Id
 	private String dni;

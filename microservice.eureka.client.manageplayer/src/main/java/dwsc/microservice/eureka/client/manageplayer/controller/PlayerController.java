@@ -1,24 +1,19 @@
 package dwsc.microservice.eureka.client.manageplayer.controller;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
-import dwsc.microservice.eureka.client.manageplayer.domain.Player;
+import dwsc.microservice.eureka.client.manageplayer.domain.Players;
+import dwsc.microservice.eureka.client.manageplayer.feign.clients.DataValidatorClient;
 import dwsc.microservice.eureka.client.manageplayer.service.PlayerService;
 
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 
 
@@ -27,81 +22,131 @@ public class PlayerController {
 	@Autowired
 	private PlayerService playerService;
 	
+	/*@Autowired
+	private DiscoveryClient discoveryClient;*/
 	@Autowired
-	private DiscoveryClient discoveryClient;
+	private DataValidatorClient dataValidatorClient;
 	
 	// Mapping the path in the microservice to get all players
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public @ResponseBody ArrayList<Player> getPlayers() {
-		return playerService.getPlayersFromDB();
+	public ResponseEntity<Object> getPlayers() {
+		ArrayList<Players> players = playerService.getPlayersFromDB();
+		if(players.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(players);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(players);
+		}
 	}
 	
 	// Mapping the path in the microservice to get a player by its DNI
 	@RequestMapping(value = "/dni/", method = RequestMethod.GET)
-	public @ResponseBody Player getPlayerByDNI(@RequestParam("dni") String dni) {
-		return playerService.getPlayerByDNIFromDB(dni);
+	public ResponseEntity<Players> getPlayerByDNI(@RequestParam("dni") String dni) {
+		Players player = playerService.getPlayerByDNIFromDB(dni);
+		if(player == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(player);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(player);
+		}
 	}
 	
 	// Mapping the path in the microservice to get players by their name
 	@RequestMapping(value = "/name/", method = RequestMethod.GET)
-	public @ResponseBody ArrayList<Player> getPlayerByName(@RequestParam("name") String name) {
-		return playerService.getPlayerByNameFromDB(name);
+	public ResponseEntity<Object> getPlayerByName(@RequestParam("name") String name) {
+		ArrayList<Players> players = playerService.getPlayerByNameFromDB(name);
+		if(players.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(players);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(players);
+		}
 	}
 	
 	// Mapping the path in the microservice to get players by their surname
 	@RequestMapping(value = "/surname/", method = RequestMethod.GET)
-	public @ResponseBody ArrayList<Player> getPlayerBySurname(
+	public ResponseEntity<Object> getPlayerBySurname(
 			@RequestParam("surname") String surname) {
-		return playerService.getPlayerBySurnameFromDB(surname);
+		ArrayList<Players> players = playerService.getPlayerBySurnameFromDB(surname);
+		if(players.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(players);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(players);
+		}
 	}
 	
 	// Mapping the path in the microservice to create a player with the specified properties
-	// -1	=>	DNI not valid
-	//  0	=>	Cannot insert the new player
-	//  1	=>	Inserted player
 	@RequestMapping(value = "/player/", method = RequestMethod.POST)
-	public @ResponseBody int createPlayer(@RequestParam("dni") String dni,
+	public ResponseEntity<Players> createPlayer(@RequestParam("dni") String dni,
 			@RequestParam("name") String name,
 			@RequestParam("surname") String surname, 
-			@RequestParam("age") int age) {
-		boolean validator = false;
-		
-		Map<String, String> params = new TreeMap<String, String>();
+			@RequestParam("age") int age) {		
+		/*Map<String, String> params = new TreeMap<String, String>();
 		params.put("data", dni);
 		List<ServiceInstance> serviceList = discoveryClient.getInstances(
-				"client-data_validator");
+				"SAMPLE-CLIENT-DATA_VALIDATOR");
 		if(serviceList != null && serviceList.size() > 0) {
 			URI uri = serviceList.get(0).getUri();
 			String url = uri.toString() + "/{data}";
 			if(uri != null) {
 				validator = (new RestTemplate()).getForObject(url, Boolean.class, params);
 			}
-		}
-	
-		if(validator) {
-			boolean inserted = playerService.createPlayerInDB(dni, name, surname, age);
-			if(inserted){
-				return 1;
+		}*/
+		Players player = playerService.getPlayerByDNIFromDB(dni);
+		if(player == null) {
+			boolean validator = dataValidatorClient.validateData(dni).getBody();
+			
+			if(validator) {
+				Players inserted = playerService.createPlayerInDB(dni, name, surname, age);
+				if(inserted != null){
+					return ResponseEntity.status(HttpStatus.CREATED).body(inserted);
+				}
+				else {
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(inserted);
+				}
 			}
-			return 0;
+			else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+			}
 		}
-		return -1;
+		else {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+		}
 	}
 	
 	// Mapping the path in the microservice to delete a player by its DNI
 	@RequestMapping(value = "/player/", method = RequestMethod.DELETE)
-	public @ResponseBody boolean deletePlayerByDNI(@RequestParam("dni") String dni) {
-		return playerService.deletePlayerByDNIFromDB(dni);
+	public ResponseEntity<Object> deletePlayerByDNI(@RequestParam("dni") String dni) {
+		boolean deleted = playerService.deletePlayerByDNIFromDB(dni);
+		if(deleted) {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
 	}
 	
 	// Mapping the path in the microservice to update a player by its DNI and using
 	// the values specified by parameters
 	@RequestMapping(value = "/player/", method = RequestMethod.PUT)
-	public @ResponseBody boolean updatePlayer(@RequestParam("dni") String dni, 
+	public ResponseEntity<Players> updatePlayer(@RequestParam("dni") String dni, 
 			@RequestParam("name") String name,
 			@RequestParam("surname") String surname, 
 			@RequestParam("age") int age) {
-		return playerService.updatePlayerInDB(dni, name, surname, age);
+		Players player = playerService.getPlayerByDNIFromDB(dni);
+		if(player != null) {
+			Players updated = playerService.updatePlayerInDB(dni, name, surname, age);
+			if(updated != null){
+				return ResponseEntity.status(HttpStatus.OK).body(updated);
+			}
+			else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(updated);
+			}
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
 	}
 
 }
