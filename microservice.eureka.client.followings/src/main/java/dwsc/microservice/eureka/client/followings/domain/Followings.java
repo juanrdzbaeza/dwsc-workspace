@@ -15,7 +15,7 @@ public class Followings {
 	@Id
 	@JoinColumn(name="dni")
 	private String dni_follower;
-
+/* getters & setters */
 	public String getDni_player() {
 		return dni_player;
 	}

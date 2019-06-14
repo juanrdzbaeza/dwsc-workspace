@@ -18,7 +18,7 @@ public class FollowingsServiceImpl implements FollowingsService{
 		Connection conn = null;
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:33306/games_microservices";
+			String url = "jdbc:mysql://localhost:3306/games_microservices";
 			conn = DriverManager.getConnection(url, "root", "root");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
